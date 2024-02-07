@@ -9,27 +9,30 @@ app.use(express.json());
 
 app.post("/login", (req, resp) => {
   const { email, password } = req.body;
-  User.findOne({ email: email }).then((user) => {
-    if (user) {
-      if (user.password === password) {
-        const userData = {
-          name: user.name,
-          email: user.email,
-          isLoggedIn: true
-        };
-        resp.json({ status: "success", userData });
+  User.findOne({ email: email })
+    .then((user) => {
+      if (user) {
+        if (user.password === password) {
+          const userData = {
+            name: user.name,
+            email: user.email,
+            isLoggedIn: true,
+          };
+          resp.json({ status: "success", userData });
+        } else {
+          resp.json({ status: "error", message: "Invalid password" });
+        }
       } else {
-        resp.json({ status: "error", message: "Invalid password" });
+        resp.json({ status: "error", message: "User not found" });
       }
-    } else {
-      resp.json({ status: "error", message: "User not found" });
-    }
-  }).catch(err => {
-    console.error("Error finding user:", err);
-    resp.status(500).json({ status: "error", message: "Internal server error" });
-  });
+    })
+    .catch((err) => {
+      console.error("Error finding user:", err);
+      resp
+        .status(500)
+        .json({ status: "error", message: "Internal server error" });
+    });
 });
-
 
 app.post("/signup", async (req, resp) => {
   let user = new User(req.body);
@@ -38,17 +41,3 @@ app.post("/signup", async (req, resp) => {
 });
 
 app.listen(5000);
-
-//   console.log(req.body);
-//   if (req.body.pasword && req.body.eamil) {
-//     let user = await User.findOne(req.body).select("-password");
-//     if (user) {
-//       resp.send(user);
-//     } else {
-//       resp.send({ result: "No User Found" });
-//     }
-//   } else {
-// app.post("/login", async (req, resp) => {
-//     resp.send({ result: "No User Found" });
-//   }
-// });
